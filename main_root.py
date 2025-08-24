@@ -3,7 +3,7 @@ from docx_to_pdf import DocxToPdfConverter
 from compress_and_remove import compress_and_remove_rar
 
 
-def run_pipeline(docs_folder, root_folder):
+def run_pipeline(docs_folder, root_folder, output_dir):
     """
     Ejecuta el flujo completo:
     1. Convierte DOCX a PDFs en distintos formatos.
@@ -17,9 +17,9 @@ def run_pipeline(docs_folder, root_folder):
         print("⚠️ No se encontraron archivos DOCX que empiecen con '0'.")
         return
 
-    print("Archivos encontrados:")
-    for i, docx in enumerate(docx_inputs, 1):
-        print(f"{i}. {docx}")
+    print(f"Archivos encontrados: {len(docx_inputs)}")
+    # for i, docx in enumerate(docx_inputs, 1):
+    #     print(f"{i}. {docx}")
 
     # 2. Modos de exportación PDF
     modes = [
@@ -31,6 +31,7 @@ def run_pipeline(docs_folder, root_folder):
     ]
 
     all_success = True  # bandera para saber si todo salió bien
+    os.makedirs(output_dir, exist_ok=True)
 
     # 3. Ejecutar conversiones
     for mode in modes:
@@ -40,7 +41,10 @@ def run_pipeline(docs_folder, root_folder):
             font_size=mode['font_size'],
             line_height=mode['line_height']
         )
-        success = converter.convert_to_pdf(docx_inputs, mode['output'])
+
+        # Definir directorio de salida
+        output_pdf = os.path.join(output_dir, mode['output'])
+        success = converter.convert_to_pdf(docx_inputs, output_pdf)
         if not success:
             all_success = False
             print(f"❌ Error en la conversión: {mode['output']}")
@@ -56,4 +60,5 @@ def run_pipeline(docs_folder, root_folder):
 if __name__ == "__main__":
     docs_folder = r"C:\Users\Orlando\Documents\Writing\@ACTIVIDAD LITERARIA\0000000000"
     root_folder = r"C:\Users\Orlando\Documents\Writing"
-    run_pipeline(docs_folder, root_folder)
+    output_dir = r"C:\Users\Orlando\Documents\pdf_converted"
+    run_pipeline(docs_folder, root_folder, output_dir)
